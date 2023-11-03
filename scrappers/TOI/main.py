@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+from datetime import datetime
 
 URL = "https://timesofindia.indiatimes.com/home/headlines"
 
@@ -8,6 +9,13 @@ req = requests.get(url=URL)
 html_doc = req.text
 soup = BeautifulSoup(html_doc, 'html.parser')
 body = soup.find("body")
+
+
+
+def getFileName():
+    today_date = datetime.today().strftime('%Y-%m-%d')
+    file_name = f"scrapped_data/{today_date}_file.txt"
+    return file_name
 
 
 def getAllCities():
@@ -47,31 +55,48 @@ def headlines_list():
 
 def getTopHeadlines():
     # headlines
+
+    result = ""
+
     top_news_items = body.find("div", {"class":"top-newslist"}).find("ul", {"class":"clearfix"}).find_all("li")
-    print(f"TOP HEADLINES -> {len(top_news_items)}", end="\n\n")
+    result+=f"TOP HEADLINES -> {len(top_news_items)}"
+    result+="\n\n"
     for item in top_news_items:
-        print(item.text, end="\n\n")
+        result+=item.text
+        result+="\n\n"
     top_news_items = body.find("div", {"class":"headlines-list"}).find("ul", {"class":"clearfix"}).find_all("li")
-    print("\n\n")
-    print(f"HEADLINES -> {len(top_news_items)}", end="\n\n")
+    result+="\n\n"
+    result+=f"HEADLINES -> {len(top_news_items)}"
+    result+="\n\n"
     for item in top_news_items:
-        print(item.text, end="\n\n")
+        result+=item.text
+        result+="\n\n"
+    return result
 
 
 
-getTopHeadlines()
-print("\n\n")
+file = getFileName()
+with open(file, "a", encoding="utf-8") as fs:
+    try:
+        fs.write(getTopHeadlines())
+        fs.write("\n\n")
+        result = ""
+        cities = getAllCities()
+        top_newslist = top_newslist_small()
+        headlines = headlines_list()
 
-cities = getAllCities()
-top_newslist = top_newslist_small()
-headlines = headlines_list()
+        for index in range(len(cities)):
+            result+=f"{cities[index].upper()}\n\n"
+            for news in top_newslist[index]:
+                result+=f"-> {news}\n\n"
+            for news in headlines[index]:
+                result+=f"-> {news}"
+            result+="\n\n"
+            result+="-" * 30
+            result+="\n\n\n\n"
+        result = result.rstrip()
+        fs.write(result)
+        print("Data Scrapped successfully")
 
-for index in range(len(cities)):
-    print(f"{cities[index].upper()}\n\n")
-    for news in top_newslist[index]:
-        print(f"-> {news}")
-    print("\n\n")
-    for news in headlines[index]:
-        print(f"-> {news}")
-    print("\n\n\n\n")
-    print("-" * 30)
+    except Exception as e:
+        print("Error : {e}")
