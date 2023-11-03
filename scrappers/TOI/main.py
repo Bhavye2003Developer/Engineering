@@ -1,3 +1,4 @@
+import os
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
@@ -55,9 +56,7 @@ def headlines_list():
 
 def getTopHeadlines():
     # headlines
-
     result = ""
-
     top_news_items = body.find("div", {"class":"top-newslist"}).find("ul", {"class":"clearfix"}).find_all("li")
     result+=f"TOP HEADLINES -> {len(top_news_items)}"
     result+="\n\n"
@@ -76,6 +75,15 @@ def getTopHeadlines():
 
 
 file = getFileName()
+try:
+    files = os.listdir("scrapped_data")
+    print(files)
+except FileNotFoundError:
+    print("Folder doesn't exists")
+    os.mkdir("scrapped_data")
+    print("Folder created successfully")
+
+
 with open(file, "a", encoding="utf-8") as fs:
     try:
         fs.write(getTopHeadlines())
