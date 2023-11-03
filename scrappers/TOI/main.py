@@ -55,9 +55,7 @@ def headlines_list():
 
 def getTopHeadlines():
     # headlines
-
     result = ""
-
     top_news_items = body.find("div", {"class":"top-newslist"}).find("ul", {"class":"clearfix"}).find_all("li")
     result+=f"TOP HEADLINES -> {len(top_news_items)}"
     result+="\n\n"
